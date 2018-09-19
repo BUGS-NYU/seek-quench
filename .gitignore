@@ -1,0 +1,10 @@
+
+# complied files
+*.pyc
+
+# Mac indexing file
+.DS_Store
+
+# stuff used to make the final file
+makefile.py
+src/*

@@ -1,42 +1,7 @@
-import argparse
 import csv
+import argparse
 
-
-def main0():
-	"""
-	Intake command line parameters, import file, pairwise sequence alignment first column of each pair of rows, and export calculations.
-	"""
-	args = command_line_parameters0()
-	gap = int(args.gap)
-	match = int(args.match)
-	mismatch = int(args.mismatch)
-	
-	file1 = open(args.intake, 'r')
-	content = list(csv.reader(file1))
-	file1.close()
-	# for every row of imported file, 
-	# 	pairwise sequence align first two columns 
-	# 	and export to next three columns
-	for row in range(0, len(content), 2):
-		seq1 = content[row][0]
-		seq2 = content[row + 1][0]
-		column = 1
-		if args.global_:
-			score_mat, end1, end2 = global_align0(seq1, seq2, gap, match, mismatch)
-			content, column = export0(args, content, row, column, score_mat, end1, end2, 'Global Alignment')
-		if args.semiglobal:
-			score_mat, end1, end2 = semiglobal_align0(seq1, seq2, gap, match, mismatch)
-			content, column = export0(args, content, row, column, score_mat, end1, end2, 'Semi Global Alignment')
-		if args.local:
-			score_mat, end1, end2 = local_align0(seq1, seq2, gap, match, mismatch)
-			content, column = export0(args, content, row, column, score_mat, end1, end2, 'Local Alignment')
-	file1 = open(args.intake, 'w')
-	writer = csv.writer(file1)
-	writer.writerows(content)
-	file1.close()
-
-
-def command_line_parameters0():
+def command_line_parameters():
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
 					description="""
 	Sequence Alignment Program
@@ -55,9 +20,7 @@ def command_line_parameters0():
 	parser.add_argument('--intake', default='', help='import file with sequences to align')
 	args = parser.parse_args()
 	return args
-
-
-def global_align0(seq1, seq2, gap, match, mismatch):
+def global_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute global sequence alignment on pair.
 
@@ -74,7 +37,7 @@ def global_align0(seq1, seq2, gap, match, mismatch):
 			start_mat.append(-1)
 		else:
 			start_mat.append(start_mat[-1] - 1)
-	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
+	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
 	row = len(seq2) - 1
@@ -95,8 +58,78 @@ def global_align0(seq1, seq2, gap, match, mismatch):
 			col -= 1
 	return score_mat, end1, end2
 
+def local_align(seq1, seq2, gap, match, mismatch):
+	"""
+	Compute local sequence alignment on pair.
 
-def semiglobal_align0(seq1, seq2, gap, match, mismatch):
+	:param seq1: top row sequence
+	:param seq2: left column sequence
+	:param gap: gap penalty
+	:param match: match score
+	:param mismatch: mismatch score
+	:return: completed score matrix and final sequence alignments
+	"""
+	start_mat = [0] * len(max(seq1, seq2))
+	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
+	end1 = ''
+	end2 = ''
+	row = 0
+	col = 0
+	temp_score = score_mat[0][0]
+	for i in range(len(seq2)):
+		for j in range(len(seq1)):
+			if score_mat[i][j] > temp_score:
+				temp_score = score_mat[i][j]
+				row = i
+				col = j
+	while (row >= 0 and col >= 0) and temp_score > 0:
+		temp_score = score_mat[row][col]
+		if path_mat[row][col] == 'top':
+			end1 = '-' + end1
+			end2 = seq2[row] + end2
+			row -= 1
+		elif path_mat[row][col] == 'left':
+			end1 = seq1[col] + end1
+			end2 = '-' + end2
+			col -= 1
+		else:
+			end1 = seq1[col] + end1
+			end2 = seq2[row] + end2
+			row -= 1
+			col -= 1
+	return score_mat, end1, end2
+def export(args, content, row, column, score_mat, end1, end2, method):
+	"""
+	Perform export functions depending on command line arguments.
+
+	:param args: command line parameters for how to export and print
+	:param content: imported file content
+	:param row: current row number
+	:param column: current column number
+	:param score_mat: calculated score matrix
+	:param end1: first finalized alignment
+	:param end2: second finalized alignment
+	:param method: alignment method
+	"""
+	if args.no_write:
+		try:
+			content[row][column] = end1
+			content[row + 1][column] = end2
+		except:
+			content[row].append(end1)
+			content[row + 1].append(end2)
+		column += 1
+	if len(args.export_matrix) > 0:
+		score_str = '\n'.join('\t'.join(x for x in y) for y in score_mat)
+		score_str += '\n'
+		file2 = open(args.export_matrix, 'a')
+		file2.write(score_str)
+		file2.close()
+	if args.print:
+		print('> ' + method)
+		print('\t{}\n\t{}'.format(end1, end2))
+	return content, column
+def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute semi-global sequence alignment on pair.
 
@@ -108,7 +141,7 @@ def semiglobal_align0(seq1, seq2, gap, match, mismatch):
 	:return: completed score matrix and final sequence alignments
 	"""
 	start_mat = [0] * len(max(seq1, seq2))
-	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
+	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
 	row = 0
@@ -139,51 +172,7 @@ def semiglobal_align0(seq1, seq2, gap, match, mismatch):
 			row -= 1
 			col -= 1
 	return score_mat, end1, end2
-
-
-def local_align0(seq1, seq2, gap, match, mismatch):
-	"""
-	Compute local sequence alignment on pair.
-
-	:param seq1: top row sequence
-	:param seq2: left column sequence
-	:param gap: gap penalty
-	:param match: match score
-	:param mismatch: mismatch score
-	:return: completed score matrix and final sequence alignments
-	"""
-	start_mat = [0] * len(max(seq1, seq2))
-	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
-	end1 = ''
-	end2 = ''
-	row = 0
-	col = 0
-	temp_score = score_mat[0][0]
-	for i in range(len(seq2)):
-		for j in range(len(seq1)):
-			if score_mat[i][j] > temp_score:
-				temp_score = score_mat[i][j]
-				row = i
-				col = j
-	while (row >= 0 and col >= 0) and temp_score > 0:
-		temp_score = score_mat[row][col]
-		if path_mat[row][col] == 'top':
-			end1 = '-' + end1
-			end2 = seq2[row] + end2
-			row -= 1
-		elif path_mat[row][col] == 'left':
-			end1 = seq1[col] + end1
-			end2 = '-' + end2
-			col -= 1
-		else:
-			end1 = seq1[col] + end1
-			end2 = seq2[row] + end2
-			row -= 1
-			col -= 1
-	return score_mat, end1, end2
-
-
-def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
+def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 	"""
 	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
 
@@ -232,38 +221,34 @@ def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
 		path_mat.append(new_path)
 	return score_mat, path_mat
 
-
-def export0(args, content, row, column, score_mat, end1, end2, method):
+def main():
 	"""
-	Perform export functions depending on command line arguments.
-
-	:param args: command line parameters for how to export and print
-	:param content: imported file content
-	:param row: current row number
-	:param column: current column number
-	:param score_mat: calculated score matrix
-	:param end1: first finalized alignment
-	:param end2: second finalized alignment
-	:param method: alignment method
+	Intake command line parameters, import file, pairwise sequence alignment first column of each pair of rows, and export calculations.
 	"""
-	if args.no_write:
-		try:
-			content[row][column] = end1
-			content[row + 1][column] = end2
-		except:
-			content[row].append(end1)
-			content[row + 1].append(end2)
-		column += 1
-	if len(args.export_matrix) > 0:
-		score_str = '\n'.join('\t'.join(x for x in y) for y in score_mat)
-		score_str += '\n'
-		file2 = open(args.export_matrix, 'a')
-		file2.write(score_str)
-		file2.close()
-	if args.print:
-		print('> ' + method)
-		print('\t{}\n\t{}'.format(end1, end2))
-	return content, column
+	args = command_line_parameters()
+	gap = int(args.gap)
+	match = int(args.match)
+	mismatch = int(args.mismatch)
 
+	file1 = open(args.intake, 'r')
+	content = list(csv.reader(file1))
+	file1.close()
+	for row in range(0, len(content), 2):
+		seq1 = content[row][0]
+		seq2 = content[row + 1][0]
+		column = 1
+		if args.global_:
+			score_mat, end1, end2 = global_align(seq1, seq2, gap, match, mismatch)
+			content, column = export(args, content, row, column, score_mat, end1, end2, 'Global Alignment')
+		if args.semiglobal:
+			score_mat, end1, end2 = semiglobal_align(seq1, seq2, gap, match, mismatch)
+			content, column = export(args, content, row, column, score_mat, end1, end2, 'Semi Global Alignment')
+		if args.local:
+			score_mat, end1, end2 = local_align(seq1, seq2, gap, match, mismatch)
+			content, column = export(args, content, row, column, score_mat, end1, end2, 'Local Alignment')
+	file1 = open(args.intake, 'w')
+	writer = csv.writer(file1)
+	writer.writerows(content)
+	file1.close()
 
-#main0()
+main()
