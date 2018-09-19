@@ -1,25 +1,7 @@
 import csv
+import numpy as np
 import argparse
 
-def command_line_parameters():
-	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-					description="""
-	Sequence Alignment Program
-	---------------------------
-	""")
-	parser.add_argument('--global_', action='store_true', help='perform global sequence alignment')
-	parser.add_argument('--semiglobal', action='store_true', help='perform semiglobal sequence alignment')
-	parser.add_argument('--local', action='store_true', help='perform local sequence alignment')
-	parser.add_argument('--gap', default='-1', help='specify gap penalty, defaults to -1')
-	parser.add_argument('--match', default='1', help='specify match score, defaults to 1')
-	parser.add_argument('--mismatch', default='0', help='specify mismatch score, defaults to 0')
-
-	parser.add_argument('--print', action='store_true', help='print out alignments')
-	parser.add_argument('--no_write', action='store_false', help='stop writing of new alignment to import file')
-	parser.add_argument('--export_matrix', default='', help='export score matrix to specified file, defaults to no export')
-	parser.add_argument('--intake', default='', help='import file with sequences to align')
-	args = parser.parse_args()
-	return args
 def global_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute global sequence alignment on pair.
@@ -98,6 +80,25 @@ def local_align(seq1, seq2, gap, match, mismatch):
 			row -= 1
 			col -= 1
 	return score_mat, end1, end2
+def command_line_parameters():
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+					description="""
+	Sequence Alignment Program
+	---------------------------
+	""")
+	parser.add_argument('--global_', action='store_true', help='perform global sequence alignment')
+	parser.add_argument('--semiglobal', action='store_true', help='perform semiglobal sequence alignment')
+	parser.add_argument('--local', action='store_true', help='perform local sequence alignment')
+	parser.add_argument('--gap', default='-1', help='specify gap penalty, defaults to -1')
+	parser.add_argument('--match', default='1', help='specify match score, defaults to 1')
+	parser.add_argument('--mismatch', default='0', help='specify mismatch score, defaults to 0')
+
+	parser.add_argument('--print', action='store_true', help='print out alignments')
+	parser.add_argument('--no_write', action='store_false', help='stop writing of new alignment to import file')
+	parser.add_argument('--export_matrix', default='', help='export score matrix to specified file, defaults to no export')
+	parser.add_argument('--intake', default='', help='import file with sequences to align')
+	args = parser.parse_args()
+	return args
 def export(args, content, row, column, score_mat, end1, end2, method):
 	"""
 	Perform export functions depending on command line arguments.
@@ -129,6 +130,8 @@ def export(args, content, row, column, score_mat, end1, end2, method):
 		print('> ' + method)
 		print('\t{}\n\t{}'.format(end1, end2))
 	return content, column
+
+
 def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute semi-global sequence alignment on pair.
@@ -173,53 +176,99 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 			col -= 1
 	return score_mat, end1, end2
 def common_align(seq1, seq2, start_mat, gap, match, mismatch):
-	"""
-	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
+    """
+    Calculates score matrix based on starting top row and left column scores created by unique alignment method.
+    :param seq1: top row sequence
+    :param seq2: left column sequence
+    :start_mat: starting numbers for computing top row / left column scoring matrix
+    :param gap: gap penalty
+    :param match: match score
+    :param mismatch: mismatch score
+    :return: competed score matrix and path matrix
+    """
+    score_mat = []
+    path_mat = []
+    
+    TOP = 1
+    CORNER = 0
+    LEFT = -1
+    
+    start_mat = list(np.random.random(1000))
+    seq1 = list(np.random.random(500))
+    seq2 = list(np.random.random(500))
+    
+    st_mat = np.array(start_mat)
+    
+    cols = len(seq1)
+    rows = len(seq2)
+    
+    matrix = np.zeros(shape = (rows,cols));
+    p_mat = np.zeros(shape = (rows,cols),dtype = np.int8);
+    
+    
+    matrix[0,0] = 0
+    matrix[1:(rows-1),0] = start_mat[0:(rows-2)]
+    matrix[0,1:(cols-1)] = start_mat[0:(cols-2)]
+    for row in range(rows):
+        
+    
+    
+    for row in range(1,rows):
+        for col in range(1,cols):
+            pass
+    
+    
+    
+    
+    for row in range(len(seq2)):
+        new_end = []
+        new_path = []
+        for col in range(len(seq1)):
+            if col == 0 and row == 0:
+                corner = 0
+            elif row == 0:
+                corner = start_mat[col - 1]
+            elif col == 0:
+                corner = start_mat[row - 1]
+            else:
+                corner = score_mat[row - 1][col - 1]
+                        
+            if col == 0:
+                left = start_mat[row] + gap
+            else:
+                left = new_end[col - 1] + gap
+            
+            if row == 0:
+                top = start_mat[col] + gap
+            else:
+                top = score_mat[row - 1][col] + gap
+            
+            if seq1[col] == seq2[row]:
+                corner += match
+            else:
+                corner += mismatch
+            
+            if corner > left and corner > top:
+                new_path.append(CORNER) # corner
+            elif left > corner and left > top:
+                new_path.append(LEFT) # left
+            else:
+                new_path.append(TOP) # top
+            
+            new_end.append(max(corner, left, top))
+        score_mat.append(new_end)
+        path_mat.append(new_path)
+    return score_mat, path_mat
 
-	:param seq1: top row sequence
-	:param seq2: left column sequence
-	:start_mat: starting numbers for computing top row / left column scoring matrix
-	:param gap: gap penalty
-	:param match: match score
-	:param mismatch: mismatch score
-	:return: competed score matrix and path matrix
-	"""
-	score_mat = []
-	path_mat = []
-	for row in range(len(seq2)):
-		new_end = []
-		new_path = []
-		for col in range(len(seq1)):
-			if col == 0 and row == 0:
-				corner = 0
-			elif row == 0:
-				corner = start_mat[col - 1]
-			elif col == 0:
-				corner = start_mat[row - 1]
-			else:
-				corner = score_mat[row - 1][col - 1]
-			if col == 0:
-				left = start_mat[row] + gap
-			else:
-				left = new_end[col - 1] + gap
-			if row == 0:
-				top = start_mat[col] + gap
-			else:
-				top = score_mat[row - 1][col] + gap
-			if seq1[col] == seq2[row]:
-				corner += match
-			else:
-				corner += mismatch
-			if corner > left and corner > top:
-				new_path.append('corner')
-			elif left > corner and left > top:
-				new_path.append('left')
-			else:
-				new_path.append('top')
-			new_end.append(max(corner, left, top))
-		score_mat.append(new_end)
-		path_mat.append(new_path)
-	return score_mat, path_mat
+
+
+def getP(left, corner, top):
+    if corner > left and corner > top:
+        return 0 # corner
+    elif left > corner and left > top:
+        return -1 # left
+    else:
+        return 1 # top
 
 def main():
 	"""
