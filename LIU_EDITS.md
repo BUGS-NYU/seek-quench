@@ -2,7 +2,7 @@
 Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make.
 
 ## Checklist
-* [ ] .gitignore
+* [x] .gitignore
 * [ ] numPy
 * [ ] Reorganizing functions
 
@@ -20,3 +20,4 @@ Here's what I used to help me learn the bioinformatics and python packages I use
 * [NeedlemanWunschPy by benhid](https://github.com/benhid/NeedlemanWunschPy/blob/master/NeedlemanWunschPy/algorithms.py) - This was what I used to get a sense of what the Needleman-Wunsch algorithm is.
 * [SciPy Docs](https://docs.scipy.org/) - Just helpful information on how to use numPy.
 * [Pairwise Sequence Alignment](https://towardsdatascience.com/pairwise-sequence-alignment-using-biopython-d1a9d0ba861f) - Background info on pairwise sequence alignment
+* [Distances between Aligned Sequences](https://www.inf.ethz.ch/personal/gonnet/papers/Distance/Distance.html) - Got a general introduction to the problem from this paper by Gaston Gonnet and Chantal Korostensky. (I didn't read much of it but it still helped some.)
