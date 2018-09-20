@@ -2,6 +2,51 @@ import csv
 import argparse
 import numpy as np
 
+
+class Bidict(dict):
+    def __init__(self, *args, **kwargs):
+        super(Bidict, self).__init__(*args, **kwargs)
+        self.inverse = {}
+        for key, value in self.items():
+            self.inverse.setdefault(value,[]).append(key) 
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.inverse[self[key]].remove(key) 
+        super(Bidict, self).__setitem__(key, value)
+        self.inverse.setdefault(value,[]).append(key)        
+
+    def __delitem__(self, key):
+        self.inverse.setdefault(self[key],[]).remove(key)
+        if self[key] in self.inverse and not self.inverse[self[key]]: 
+            del self.inverse[self[key]]
+        super(Bidict, self).__delitem__(key)
+
+encoding = Bidict() # This dictionary holds the encoding from the data in seq to the data in the numpy array
+
+def encode(seq): # This converts a sequence into a numpy array
+	code = 1 # I'm almost certain that seq is just a string containing AGTC but im not confident
+	new_seq = np.zeros(len(seq)) # in that so I'm using a dictionary to encode the sequences first just in case
+	global encoding
+	encoding[seq[0]] = 0
+	for index in range(1,len(seq)):
+		element = seq[index]
+		if element not in seq:
+			encoding[element] = code
+			code+=1
+		new_seq[index] = encoding[element]
+	return new_seq
+
+def decode(seqarray): # Convert numpy array back into seq string
+	global encoding
+	decoding = encoding.inverse
+	seq = []
+	for index in range(len(seqarray)):
+		seq.append(decoding[seqarray[index]])
+	return ''.join(seq)
+
+
+
 def global_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute global sequence alignment on pair.
@@ -96,7 +141,7 @@ def command_line_parameters():
 	parser.add_argument('--intake', default='', help='import file with sequences to align')
 	args = parser.parse_args()
 	return args
-def export(args, content, row, column, score_mat, end1, end2, method):
+def export(content, row, column, score_mat, end1, end2, method, nowrite, export_matrix, print):
 	"""
 	Perform export functions depending on command line arguments.
 
@@ -109,7 +154,7 @@ def export(args, content, row, column, score_mat, end1, end2, method):
 	:param end2: second finalized alignment
 	:param method: alignment method
 	"""
-	if args.no_write:
+	if nowrite:
 		try:
 			content[row][column] = end1
 			content[row + 1][column] = end2
@@ -117,13 +162,13 @@ def export(args, content, row, column, score_mat, end1, end2, method):
 			content[row].append(end1)
 			content[row + 1].append(end2)
 		column += 1
-	if len(args.export_matrix) > 0:
+	if len(export_matrix) > 0:
 		score_str = '\n'.join('\t'.join(x for x in y) for y in score_mat)
 		score_str += '\n'
-		file2 = open(args.export_matrix, 'a')
+		file2 = open(export_matrix, 'a')
 		file2.write(score_str)
 		file2.close()
-	if args.print:
+	if print:
 		print('> ' + method)
 		print('\t{}\n\t{}'.format(end1, end2))
 	return content, column
@@ -194,7 +239,6 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 	start_mat = list(np.random.random(1000))
 	seq1 = list(np.random.random(500))
 	seq2 = list(np.random.random(500))
-	
 	
 	st_mat = np.array(start_mat)
 	cols = len(seq1)
@@ -268,12 +312,13 @@ def main():
 	"""
 	Intake command line parameters, import file, pairwise sequence alignment first column of each pair of rows, and export calculations.
 	"""
-	args = command_line_parameters()
+	args = command_line_parameters() #Command call inputs
 	gap = int(args.gap)
 	match = int(args.match)
 	mismatch = int(args.mismatch)
 
-	file1 = open(args.intake, 'r')
+
+	file1 = open(args.intake, 'r') # 
 	content = list(csv.reader(file1))
 	file1.close()
 	for row in range(0, len(content), 2):
@@ -282,13 +327,23 @@ def main():
 		column = 1
 		if args.global_:
 			score_mat, end1, end2 = global_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Global Alignment')
+			
+			content, column = export(content, row, column, score_mat, end1, end2, 
+							method = 'Global Alignment', nowrite = args.nowrite, 
+							export_matrix = args.export_matrix, print = args.print)
 		if args.semiglobal:
 			score_mat, end1, end2 = semiglobal_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Semi Global Alignment')
+			
+			content, column = export(content, row, column, score_mat, end1, end2, 
+							method = 'Semi Global Alignment', nowrite = args.nowrite, 
+							export_matrix = args.export_matrix, print = args.print)
 		if args.local:
 			score_mat, end1, end2 = local_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Local Alignment')
+			
+			content, column = export(content, row, column, score_mat, end1, end2, 
+							method = 'Local Alignment', nowrite = args.nowrite, 
+							export_matrix = args.export_matrix, print = args.print)
+	
 	file1 = open(args.intake, 'w')
 	writer = csv.writer(file1)
 	writer.writerows(content)
