@@ -2,6 +2,7 @@
 Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make.
 
 ## Checklist
+* [ ] bugs
 * [x] .gitignore
 * [ ] numPy
 * [x] Reorganizing functions
@@ -10,11 +11,14 @@ Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make.
 ## Overview
 In general the edits that I made were for method specificity and memory usage. I didn't really know what kind of format some of the objects were, so I also added a few methods that are blind to that kind of thing to make sure there aren't any errors when converting from one datatype to another. Also I removed the args stuff and separated that package's functions from the rest of the program so for readability.
 
+## Bugs
+I tried to fix any bugs that I found. I don't really know what exactly I should be looking for, but I think I fixed a bug with the generation of the starting matrix, where the matrix would have an incorrect length.
+
 ## Gitignore
 I added a gitignore file so that the repository wouldn't have files related to my workflow but unrelated to the actual script.
 
 ## Integration of numPy
-From what I saw, you were using python lists to store integers. I changed your sequence alignment functions to use numpy arrays instead of lists. Hopefully that'll increase performance by using vectorized operations and stuff like that.
+Changed lists of numbers to arrays of integers for speed and efficiency.
 * [ ] Integration of numpy into general datatypes
 * [ ] Use of numpy arrays for calculations (vectorized operations)
 * [ ] use of numpy arrays for arguments and list/matrix generation
