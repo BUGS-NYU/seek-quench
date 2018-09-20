@@ -1,6 +1,6 @@
 import csv
-import numpy as np
 import argparse
+import numpy as np
 
 def global_align(seq1, seq2, gap, match, mismatch):
 	"""
@@ -13,12 +13,8 @@ def global_align(seq1, seq2, gap, match, mismatch):
 	:param mismatch: mismatch score
 	:return: completed score matrix and final sequence alignments
 	"""
-	start_mat = []
-	for i in range(len(max(seq1,seq2))):
-		if len(start_mat) < 1:
-			start_mat.append(-1)
-		else:
-			start_mat.append(start_mat[-1] - 1)
+	start_mat = np.arange(-1,-max(len(seq1),len(seq2))-1,-1)
+        
 	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
@@ -51,7 +47,7 @@ def local_align(seq1, seq2, gap, match, mismatch):
 	:param mismatch: mismatch score
 	:return: completed score matrix and final sequence alignments
 	"""
-	start_mat = [0] * len(max(seq1, seq2))
+	start_mat = np.zeros(max(len(seq1),len(seq2)))
 	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
@@ -64,6 +60,7 @@ def local_align(seq1, seq2, gap, match, mismatch):
 				temp_score = score_mat[i][j]
 				row = i
 				col = j
+
 	while (row >= 0 and col >= 0) and temp_score > 0:
 		temp_score = score_mat[row][col]
 		if path_mat[row][col] == 'top':
@@ -132,6 +129,7 @@ def export(args, content, row, column, score_mat, end1, end2, method):
 	return content, column
 
 
+
 def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute semi-global sequence alignment on pair.
@@ -144,6 +142,7 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	:return: completed score matrix and final sequence alignments
 	"""
 	start_mat = [0] * len(max(seq1, seq2))
+	start_mat = np.zeros(max(len(seq1,seq2)))
 	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
@@ -175,100 +174,95 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 			row -= 1
 			col -= 1
 	return score_mat, end1, end2
-def common_align(seq1, seq2, start_mat, gap, match, mismatch):
-    """
-    Calculates score matrix based on starting top row and left column scores created by unique alignment method.
-    :param seq1: top row sequence
-    :param seq2: left column sequence
-    :start_mat: starting numbers for computing top row / left column scoring matrix
-    :param gap: gap penalty
-    :param match: match score
-    :param mismatch: mismatch score
-    :return: competed score matrix and path matrix
-    """
-    score_mat = []
-    path_mat = []
-    
-    TOP = 1
-    CORNER = 0
-    LEFT = -1
-    
-    start_mat = list(np.random.random(1000))
-    seq1 = list(np.random.random(500))
-    seq2 = list(np.random.random(500))
-    
-    st_mat = np.array(start_mat)
-    
-    cols = len(seq1)
-    rows = len(seq2)
-    
-    matrix = np.zeros(shape = (rows,cols));
-    p_mat = np.zeros(shape = (rows,cols),dtype = np.int8);
-    
-    
-    matrix[0,0] = 0
-    matrix[1:(rows-1),0] = start_mat[0:(rows-2)]
-    matrix[0,1:(cols-1)] = start_mat[0:(cols-2)]
-    for row in range(rows):
-        
-    
-    
-    for row in range(1,rows):
-        for col in range(1,cols):
-            pass
-    
-    
-    
-    
-    for row in range(len(seq2)):
-        new_end = []
-        new_path = []
-        for col in range(len(seq1)):
-            if col == 0 and row == 0:
-                corner = 0
-            elif row == 0:
-                corner = start_mat[col - 1]
-            elif col == 0:
-                corner = start_mat[row - 1]
-            else:
-                corner = score_mat[row - 1][col - 1]
-                        
-            if col == 0:
-                left = start_mat[row] + gap
-            else:
-                left = new_end[col - 1] + gap
-            
-            if row == 0:
-                top = start_mat[col] + gap
-            else:
-                top = score_mat[row - 1][col] + gap
-            
-            if seq1[col] == seq2[row]:
-                corner += match
-            else:
-                corner += mismatch
-            
-            if corner > left and corner > top:
-                new_path.append(CORNER) # corner
-            elif left > corner and left > top:
-                new_path.append(LEFT) # left
-            else:
-                new_path.append(TOP) # top
-            
-            new_end.append(max(corner, left, top))
-        score_mat.append(new_end)
-        path_mat.append(new_path)
-    return score_mat, path_mat
 
+def common_align(seq1, seq2, start_mat, gap, match, mismatch):
+	"""
+	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
+	:param seq1: top row sequence
+	:param seq2: left column sequence
+	:start_mat: starting numbers for computing top row / left column scoring matrix
+	:param gap: gap penalty
+	:param match: match score
+	:param mismatch: mismatch score
+	:return: competed score matrix and path matrix
+	"""
+	score_mat = []
+	path_mat = []
+	TOP = 1
+	CORNER = 0
+	LEFT = -1
+	start_mat = list(np.random.random(1000))
+	seq1 = list(np.random.random(500))
+	seq2 = list(np.random.random(500))
+	
+	
+	st_mat = np.array(start_mat)
+	cols = len(seq1)
+	rows = len(seq2)
+	
+	
+	
+	matrix = np.zeros(shape = (rows,cols)); # Score matrix
+	p_mat = np.zeros(shape = (rows,cols),dtype = np.int8);
+	
+	matrix[0,0] = 0
+	matrix[1:(rows-1),0] = start_mat[0:(rows-2)]
+	matrix[0,1:(cols-1)] = start_mat[0:(cols-2)]
+	
+	
+	for row in range(rows):
+		pass
+		for row in range(1,rows):
+			for col in range(1,cols):
+				pass
+	for row in range(len(seq2)):
+		new_end = []
+		new_path = []
+		for col in range(len(seq1)):
+			if col == 0 and row == 0:
+				corner = 0
+			elif row == 0:
+				corner = start_mat[col - 1]
+			elif col == 0:
+				corner = start_mat[row - 1]
+			else:
+				corner = score_mat[row - 1][col - 1]
+
+			if col == 0:
+				left = start_mat[row] + gap
+			else:
+				left = new_end[col - 1] + gap
+
+			if row == 0:
+				top = start_mat[col] + gap
+			else:
+				top = score_mat[row - 1][col] + gap
+
+			if seq1[col] == seq2[row]:
+				corner += match
+			else:
+				corner += mismatch
+			if corner > left and corner > top:
+				new_path.append(CORNER) # corner
+			elif left > corner and left > top:
+				new_path.append(LEFT) # left
+			else:
+				new_path.append(TOP) # top
+			new_end.append(max(corner, left, top))
+		score_mat.append(new_end)
+		path_mat.append(new_path)
+
+	return score_mat, path_mat
 
 
 def getP(left, corner, top):
-    if corner > left and corner > top:
-        return 0 # corner
-    elif left > corner and left > top:
-        return -1 # left
-    else:
-        return 1 # top
+	if corner > left and corner > top:
+		return 0 # corner
+	elif left > corner and left > top:
+		return -1 # left
+	else:
+		return 1 # top
+
 
 def main():
 	"""

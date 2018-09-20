@@ -10,12 +10,12 @@ def main0():
 	gap = int(args.gap)
 	match = int(args.match)
 	mismatch = int(args.mismatch)
-	
+
 	file1 = open(args.intake, 'r')
 	content = list(csv.reader(file1))
 	file1.close()
-	# for every row of imported file, 
-	# 	pairwise sequence align first two columns 
+	# for every row of imported file,
+	# 	pairwise sequence align first two columns
 	# 	and export to next three columns
 	for row in range(0, len(content), 2):
 		seq1 = content[row][0]
