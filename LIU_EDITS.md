@@ -39,3 +39,7 @@ Here's what I used to help me learn the bioinformatics and python packages I use
 * [pandas](https://github.com/pandas-dev/pandas) - I don't know yet, but I'm probably going to replace the csv stuff with pandas.
 * [Bidirectional Hash Table](https://stackoverflow.com/questions/3318625/efficient-bidirectional-hash-table-in-python) - Used this for encoder
 * Denis Kaydanov - My CL helped me understand the underlying biology better
+* [Cython for Numpy Users](https://cython.readthedocs.io/en/latest/src/userguide/numpy_tutorial.html) - Introduction for Cython
+  * [Kurt Smith's Cython Tutorial](https://www.youtube.com/watch?v=gMvkiQ-gOW8&t=4730s&ab_channel=Enthought) - Lecture at SciPy 2015
+  * [Cython Tutorial Slides](https://github.com/kwmsmith/scipy-2015-cython-tutorial)
+* [BioPython](https://biopython.org/wiki/Documentation) - Biopython is an option that I haven't yet explored
