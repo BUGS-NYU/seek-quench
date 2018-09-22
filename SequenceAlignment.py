@@ -1,6 +1,9 @@
 import argparse
 import csv
 
+CORNER = 0
+LEFT = 1
+TOP = 2
 
 def main():
 	"""
@@ -10,12 +13,12 @@ def main():
 	gap = int(args.gap)
 	match = int(args.match)
 	mismatch = int(args.mismatch)
-	
+
 	file1 = open(args.intake, 'r')
 	content = list(csv.reader(file1))
 	file1.close()
-	# for every row of imported file, 
-	# 	pairwise sequence align first two columns 
+	# for every row of imported file,
+	# 	pairwise sequence align first two columns
 	# 	and export to next three columns
 	for row in range(0, len(content), 2):
 		seq1 = content[row][0]
@@ -69,6 +72,7 @@ def global_align(seq1, seq2, gap, match, mismatch):
 	:return: completed score matrix and final sequence alignments
 	"""
 	start_mat = []
+	global TOP,LEFT
 	for i in range(len(max(seq1,seq2))):
 		if len(start_mat) < 1:
 			start_mat.append(-1)
@@ -80,11 +84,11 @@ def global_align(seq1, seq2, gap, match, mismatch):
 	row = len(seq2) - 1
 	col = len(seq1) - 1
 	while row >= 0 and col >= 0:
-		if path_mat[row][col] == 'top':
+		if path_mat[row][col] == TOP:
 			end1 = '-' + end1
 			end2 = seq2[row] + end2
 			row -= 1
-		elif path_mat[row][col] == 'left':
+		elif path_mat[row][col] == LEFT:
 			end1 = seq1[col] + end1
 			end2 = '-' + end2
 			col -= 1
@@ -114,6 +118,7 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	row = 0
 	col = len(seq1) - 1
 	temp_score = score_mat[0][-1]
+	global TOP,LEFT
 	for i in range(len(seq2)):
 		if score_mat[i][-1] > temp_score:
 			row = i
@@ -125,11 +130,11 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 			col = i
 			temp_score = score_mat[-1][i]
 	while row >= 0 and col >= 0:
-		if path_mat[row][col] == 'top':
+		if path_mat[row][col] == TOP:
 			end1 = '-' + end1
 			end2 = seq2[row] + end2
 			row -= 1
-		elif path_mat[row][col] == 'left':
+		elif path_mat[row][col] == LEFT:
 			end1 = seq1[col] + end1
 			end2 = '-' + end2
 			col -= 1
@@ -159,6 +164,7 @@ def local_align(seq1, seq2, gap, match, mismatch):
 	row = 0
 	col = 0
 	temp_score = score_mat[0][0]
+	global TOP,LEFT
 	for i in range(len(seq2)):
 		for j in range(len(seq1)):
 			if score_mat[i][j] > temp_score:
@@ -167,11 +173,11 @@ def local_align(seq1, seq2, gap, match, mismatch):
 				col = j
 	while (row >= 0 and col >= 0) and temp_score > 0:
 		temp_score = score_mat[row][col]
-		if path_mat[row][col] == 'top':
+		if path_mat[row][col] == TOP:
 			end1 = '-' + end1
 			end2 = seq2[row] + end2
 			row -= 1
-		elif path_mat[row][col] == 'left':
+		elif path_mat[row][col] == LEFT:
 			end1 = seq1[col] + end1
 			end2 = '-' + end2
 			col -= 1
@@ -197,6 +203,7 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 	"""
 	score_mat = []
 	path_mat = []
+	global CORNER,LEFT,TOP
 	for row in range(len(seq2)):
 		new_end = []
 		new_path = []
@@ -222,11 +229,11 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 			else:
 				corner += mismatch
 			if corner >= left and corner >= top:
-				new_path.append(1)
+				new_path.append(CORNER)
 			elif left >= corner and left >= top:
-				new_path.append(2)
+				new_path.append(LEFT)
 			else:
-				new_path.append(3)
+				new_path.append(TOP)
 			new_end.append(max(corner, left, top))
 		score_mat.append(new_end)
 		path_mat.append(new_path)
