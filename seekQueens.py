@@ -1,8 +1,11 @@
-import csv
-import argparse
 import numpy as np
+import argparse
+import csv
 
 
+# Global variables and definitions
+
+# Copied from user Basj, linked in sources of LIU_EDITS.md
 class Bidict(dict):
     def __init__(self, *args, **kwargs):
         super(Bidict, self).__init__(*args, **kwargs)
@@ -22,7 +25,14 @@ class Bidict(dict):
             del self.inverse[self[key]]
         super(Bidict, self).__delitem__(key)
 
+TOP = 1
+CORNER = 0
+BOTTOM = -1
+
 encoding = Bidict() # This dictionary holds the encoding from the data in seq to the data in the numpy array
+
+# ---------seqarray.py--------------
+
 
 def encode(seq): # This converts a sequence into a numpy array
 	code = 1 # I'm almost certain that seq is just a string containing AGTC but im not confident
@@ -47,7 +57,10 @@ def decode(seqarray): # Convert numpy array back into seq string
 
 
 
-def global_align(seq1, seq2, gap, match, mismatch):
+
+# ---------global.py--------------
+
+def global_align0(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute global sequence alignment on pair.
 
@@ -60,7 +73,7 @@ def global_align(seq1, seq2, gap, match, mismatch):
 	"""
 	start_mat = np.arange(-1,-max(len(seq1),len(seq2))-1,-1)
         
-	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
+	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
 	row = len(seq2) - 1
@@ -81,7 +94,10 @@ def global_align(seq1, seq2, gap, match, mismatch):
 			col -= 1
 	return score_mat, end1, end2
 
-def local_align(seq1, seq2, gap, match, mismatch):
+
+# ---------local.py--------------
+
+def local_align0(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute local sequence alignment on pair.
 
@@ -93,7 +109,7 @@ def local_align(seq1, seq2, gap, match, mismatch):
 	:return: completed score matrix and final sequence alignments
 	"""
 	start_mat = np.zeros(max(len(seq1),len(seq2)))
-	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
+	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
 	row = 0
@@ -122,7 +138,10 @@ def local_align(seq1, seq2, gap, match, mismatch):
 			row -= 1
 			col -= 1
 	return score_mat, end1, end2
-def command_line_parameters():
+
+# ---------cmdlineparams.py--------------
+
+def command_line_parameters0():
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
 					description="""
 	Sequence Alignment Program
@@ -141,7 +160,10 @@ def command_line_parameters():
 	parser.add_argument('--intake', default='', help='import file with sequences to align')
 	args = parser.parse_args()
 	return args
-def export(content, row, column, score_mat, end1, end2, method, nowrite, export_matrix, print):
+
+# ---------export.py--------------
+
+def export0(content, row, column, score_mat, end1, end2, method, nowrite, export_matrix, print):
 	"""
 	Perform export functions depending on command line arguments.
 
@@ -175,7 +197,10 @@ def export(content, row, column, score_mat, end1, end2, method, nowrite, export_
 
 
 
-def semiglobal_align(seq1, seq2, gap, match, mismatch):
+# ---------semiglobal.py--------------
+
+
+def semiglobal_align0(seq1, seq2, gap, match, mismatch):
 	"""
 	Compute semi-global sequence alignment on pair.
 
@@ -186,9 +211,8 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 	:param mismatch: mismatch score
 	:return: completed score matrix and final sequence alignments
 	"""
-	start_mat = [0] * len(max(seq1, seq2))
-	start_mat = np.zeros(max(len(seq1,seq2)))
-	score_mat, path_mat = common_align(seq1, seq2, start_mat, gap, match, mismatch)
+	start_mat = np.zeros(max(len(seq1),len(seq2)))
+	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
 	end1 = ''
 	end2 = ''
 	row = 0
@@ -220,7 +244,10 @@ def semiglobal_align(seq1, seq2, gap, match, mismatch):
 			col -= 1
 	return score_mat, end1, end2
 
-def common_align(seq1, seq2, start_mat, gap, match, mismatch):
+# ---------common.py--------------
+
+
+def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
 	"""
 	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
 	:param seq1: top row sequence
@@ -230,35 +257,47 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 	:param match: match score
 	:param mismatch: mismatch score
 	:return: competed score matrix and path matrix
+
+	Needleman Wunsch algorithm. Formula:
+                M(0,0) = 0
+                M(i,0) = M(i-1,0) - gap_penalty
+                M(0,j) = M(0,j-1) - gap_penalty
+                M(i,j) = max{ M(i-1,j-1) + score , M(i-1,j) + gap_penalty, M(i,j-1) + gap_penalty }
+            M will be our scoring matrix.
+
 	"""
 	score_mat = []
 	path_mat = []
 	TOP = 1
 	CORNER = 0
 	LEFT = -1
-	start_mat = list(np.random.random(1000))
-	seq1 = list(np.random.random(500))
-	seq2 = list(np.random.random(500))
-	
-	st_mat = np.array(start_mat)
+	seq1 = list(np.round(4*np.random.random(500)-.5)) # Random sequence of 4 possible numbers
+	seq2 = list(np.round(4*np.random.random(320))) # Random sequence of 4 possible numbers
+	start_mat = np.zeros(max(len(seq1),len(seq2)))
+
 	cols = len(seq1)
 	rows = len(seq2)
+
+	seq1mesh,seq2mesh  = np.meshgrid(seq1,seq2)
+	matchBools = 1*np.equal(seq1mesh,seq2mesh) # 1 for match and 0 for not a match
+
+	matchValues = matchBools * match - (matchBools -1) * mismatch # Number to add when checking match
+
+
+	score_matrix = np.zeros(shape = (rows,cols)); # Score matrix
+	path_matrix = np.zeros(shape = (rows,cols),dtype = np.int8); # path matrix
+
+	score_matrix[0,0] = 0 # Corner element M(0,0) = 0
+
+	start_mat += np.linspace(0,len(start_mat)*gap,len(start_mat)+1)[0:len(start_mat)]# np.linspace so that gap can be positive
+	score_matrix[1:(rows-1),0] = start_mat[0:(rows-2)] # First column values
+	score_matrix[0,1:(cols-1)] = start_mat[0:(cols-2)] # First row values
+
+	for row in range(1,rows):
+		for col in range(1,cols):
+			score_matrix[row,col] = max(score_matrix[row-1,col-1]+matchValues[row-1,col-1],score_matrix[row-1,col]+gap)
+			
 	
-	
-	
-	matrix = np.zeros(shape = (rows,cols)); # Score matrix
-	p_mat = np.zeros(shape = (rows,cols),dtype = np.int8);
-	
-	matrix[0,0] = 0
-	matrix[1:(rows-1),0] = start_mat[0:(rows-2)]
-	matrix[0,1:(cols-1)] = start_mat[0:(cols-2)]
-	
-	
-	for row in range(rows):
-		pass
-		for row in range(1,rows):
-			for col in range(1,cols):
-				pass
 	for row in range(len(seq2)):
 		new_end = []
 		new_path = []
@@ -308,11 +347,14 @@ def getP(left, corner, top):
 		return 1 # top
 
 
-def main():
+# ---------main.py--------------
+
+
+def main0():
 	"""
 	Intake command line parameters, import file, pairwise sequence alignment first column of each pair of rows, and export calculations.
 	"""
-	args = command_line_parameters() #Command call inputs
+	args = command_line_parameters0() #Command call inputs
 	gap = int(args.gap)
 	match = int(args.match)
 	mismatch = int(args.mismatch)
@@ -326,21 +368,21 @@ def main():
 		seq2 = content[row + 1][0]
 		column = 1
 		if args.global_:
-			score_mat, end1, end2 = global_align(seq1, seq2, gap, match, mismatch)
+			score_mat, end1, end2 = global_align0(seq1, seq2, gap, match, mismatch)
 			
 			content, column = export(content, row, column, score_mat, end1, end2, 
 							method = 'Global Alignment', nowrite = args.nowrite, 
 							export_matrix = args.export_matrix, print = args.print)
 		if args.semiglobal:
-			score_mat, end1, end2 = semiglobal_align(seq1, seq2, gap, match, mismatch)
+			score_mat, end1, end2 = semiglobal_align0(seq1, seq2, gap, match, mismatch)
 			
 			content, column = export(content, row, column, score_mat, end1, end2, 
 							method = 'Semi Global Alignment', nowrite = args.nowrite, 
 							export_matrix = args.export_matrix, print = args.print)
 		if args.local:
-			score_mat, end1, end2 = local_align(seq1, seq2, gap, match, mismatch)
+			score_mat, end1, end2 = local_align0(seq1, seq2, gap, match, mismatch)
 			
-			content, column = export(content, row, column, score_mat, end1, end2, 
+			content, column = export0(content, row, column, score_mat, end1, end2, 
 							method = 'Local Alignment', nowrite = args.nowrite, 
 							export_matrix = args.export_matrix, print = args.print)
 	
@@ -349,4 +391,4 @@ def main():
 	writer.writerows(content)
 	file1.close()
 
-main()
+main0()

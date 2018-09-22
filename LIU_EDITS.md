@@ -1,5 +1,5 @@
 # Liu Edits
-Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make.
+Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made.
 
 ## Checklist
 * [ ] bugs
@@ -29,7 +29,7 @@ I tried to move the argparse stuff away from everything else to make testing ind
 ## Pandas?
 I might replace the csv package with the pandas package. csv is probably more lightweight, but pandas is a lot more powerful and integrated with numpy.
 
-## Sources
+## Sources and Acknowledgements
 Here's what I used to help me learn the bioinformatics and python packages I used
 * [NeedlemanWunschPy by benhid](https://github.com/benhid/NeedlemanWunschPy/blob/master/NeedlemanWunschPy/algorithms.py) - This was what I used to get a sense of what the Needleman-Wunsch algorithm is.
 * [SciPy Docs](https://docs.scipy.org/) - Just helpful information on how to use numPy.
@@ -37,4 +37,5 @@ Here's what I used to help me learn the bioinformatics and python packages I use
 * [Distances between Aligned Sequences](https://www.inf.ethz.ch/personal/gonnet/papers/Distance/Distance.html) - Got a general introduction to the problem from this paper by Gaston Gonnet and Chantal Korostensky. (I didn't read much of it but it still helped some.)
 * [PEP 305](https://www.python.org/dev/peps/pep-0305/#reading-csv-files) - This PEP describes the general concept of the csv package
 * [pandas](https://github.com/pandas-dev/pandas) - I don't know yet, but I'm probably going to replace the csv stuff with pandas.
-* [Bidirectional Hash Table](https://stackoverflow.com/questions/3318625/efficient-bidirectional-hash-table-in-python) -
+* [Bidirectional Hash Table](https://stackoverflow.com/questions/3318625/efficient-bidirectional-hash-table-in-python) - Used this for encoder
+* Denis Kaydanov - My CL helped me understand the underlying biology better
