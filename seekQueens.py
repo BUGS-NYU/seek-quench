@@ -1,6 +1,6 @@
-import numpy as np
-import argparse
 import csv
+import argparse
+import numpy as np
 
 
 # Global variables and definitions
@@ -25,9 +25,9 @@ class Bidict(dict):
             del self.inverse[self[key]]
         super(Bidict, self).__delitem__(key)
 
-TOP = 1
 CORNER = 0
-BOTTOM = -1
+LEFT = 1
+TOP = 2
 
 encoding = Bidict() # This dictionary holds the encoding from the data in seq to the data in the numpy array
 
@@ -71,6 +71,7 @@ def global_align0(seq1, seq2, gap, match, mismatch):
 	:param mismatch: mismatch score
 	:return: completed score matrix and final sequence alignments
 	"""
+	global TOP,LEFT
 	start_mat = np.arange(-1,-max(len(seq1),len(seq2))-1,-1)
         
 	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
@@ -79,11 +80,11 @@ def global_align0(seq1, seq2, gap, match, mismatch):
 	row = len(seq2) - 1
 	col = len(seq1) - 1
 	while row >= 0 and col >= 0:
-		if path_mat[row][col] == 'top':
+		if path_mat[row][col] == TOP:
 			end1 = '-' + end1
 			end2 = seq2[row] + end2
 			row -= 1
-		elif path_mat[row][col] == 'left':
+		elif path_mat[row][col] == LEFT:
 			end1 = seq1[col] + end1
 			end2 = '-' + end2
 			col -= 1
@@ -247,7 +248,7 @@ def semiglobal_align0(seq1, seq2, gap, match, mismatch):
 # ---------common.py--------------
 
 
-def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
+def common_align0(seq1, seq2, start_matrix, gap, match, mismatch):
 	"""
 	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
 	:param seq1: top row sequence
@@ -266,72 +267,39 @@ def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
             M will be our scoring matrix.
 
 	"""
-	score_mat = []
-	seq1 = list(np.round(4*np.random.random(500)-.5)) # Random sequence of 4 possible numbers
-	seq2 = list(np.round(4*np.random.random(320))) # Random sequence of 4 possible numbers
 
-	cols = len(seq1)
-	rows = len(seq2)
+	cols,rows = len(seq1),len(seq2)
 
-	seq1mesh,seq2mesh  = np.meshgrid(seq1,seq2)
-	matchBools = 1*np.equal(seq1mesh,seq2mesh) # 1 for match and 0 for not a match
+	matchBools = 1*np.equal(*np.meshgrid(seq1,seq2)) # 1 for match and 0 for not a match
 
 	matchValues = matchBools * match - (matchBools - 1) * mismatch # Number to add when checking match
-
-
+	
 	score_matrix = np.zeros(shape = (rows+1,cols+1)); # Score matrix
+	path_matrix = np.zeros(shape = (rows,cols),dtype = np.int8); # path matrix
 
 	score_matrix[0,0] = 0 # Corner element M(0,0) = 0
-
-	start_matrix = start_mat #+ np.linspace(0,len(start_mat)*gap,len(start_mat)+1)[0:len(start_mat)]
+	
 	score_matrix[1:,0] = start_matrix[0:rows] # First column values
 	score_matrix[0,1:] = start_matrix[0:cols] # First row values
-
+	
 	for row in range(1,rows+1):
 		for col in range(1,cols+1):
-			score_matrix[row,col] = max(score_matrix[row-1,col-1]+matchValues[row-1,col-1],
-									   score_matrix[row-1,col]+gap,
-									   score_matrix[row,col-1]+gap)
+			corner  = score_matrix[row-1,col-1]+matchValues[row-1,col-1]
+			left = score_matrix[row,col-1]+gap
+			top = score_matrix[row-1,col]+gap
+			path,max_val = getP(corner,left,top)
+			path_matrix[row-1,col-1] = path
+			score_matrix[row,col] = max_val
 	score_matrix = score_matrix[1:,1:]
 	
-	for row in range(len(seq2)):
-		new_end = []
-		for col in range(len(seq1)):
-			if col == 0 and row == 0:
-				corner = 0
-			elif row == 0:
-				corner = start_mat[col - 1]
-			elif col == 0:
-				corner = start_mat[row - 1]
-			else:
-				corner = score_mat[row - 1][col - 1]
 
-			if col == 0:
-				left = start_mat[row] + gap
-			else:
-				left = new_end[col - 1] + gap
-
-			if row == 0:
-				top = start_mat[col] + gap
-			else:
-				top = score_mat[row - 1][col] + gap
-
-			if seq1[col] == seq2[row]:
-				corner += match
-			new_end.append(max(corner, left, top))
-		score_mat.append(new_end)
-
-	return score_mat,score_matrix#, path_mat
-
-
-def getP(left, corner, top):
-	if corner > left and corner > top:
-		return 0 # corner
-	elif left > corner and left > top:
-		return -1 # left
+def getP(corner, left, top):
+	if corner >= left and corner >= top:
+		return 0,corner # corner
+	elif left >= corner and left >= top:
+		return 1,left # left
 	else:
-		return 1 # top
-
+		return 2,top # top
 
 # ---------main.py--------------
 
@@ -356,13 +324,13 @@ def main0():
 		if args.global_:
 			score_mat, end1, end2 = global_align0(seq1, seq2, gap, match, mismatch)
 			
-			content, column = export(content, row, column, score_mat, end1, end2, 
+			content, column = export0(content, row, column, score_mat, end1, end2, 
 							method = 'Global Alignment', nowrite = args.nowrite, 
 							export_matrix = args.export_matrix, print = args.print)
 		if args.semiglobal:
 			score_mat, end1, end2 = semiglobal_align0(seq1, seq2, gap, match, mismatch)
 			
-			content, column = export(content, row, column, score_mat, end1, end2, 
+			content, column = export0(content, row, column, score_mat, end1, end2, 
 							method = 'Semi Global Alignment', nowrite = args.nowrite, 
 							export_matrix = args.export_matrix, print = args.print)
 		if args.local:

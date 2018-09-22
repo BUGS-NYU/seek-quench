@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-def checkEquality(matrix1, matrix2, encoding = None):
+def check_equality(matrix1, matrix2, encoding = None):
 	'''
 	Checks to see if 2 matrices are equivalent. If an encoding is specified, 
 	first converts elements in matrix1 using encoding, then checks for equality
@@ -16,18 +16,20 @@ def checkEquality(matrix1, matrix2, encoding = None):
 	
 	#TODO Do this function to test the changes made
 	if encoding is None:
-		return checkEqualityNaive(matrix1,matrix2)
+		return __check_naive(matrix1,matrix2)
 	for row in range(len(matrix1)):
 		for col in range(len(matrix1[0])):
 			if (encoding[matrix1[row][col]] != matrix2[row][col]):
-				print(row,col)
+				print('indices: ({},{})'.format(row,col))
+				print('Values: m1 - {}, m2 - {}'.format(encoding[matrix1[row][col]],matrix2[row][col]))
 				return False
 	return True
 
-def checkEqualityNaive(matrix1,matrix2):
+def __check_naive(matrix1,matrix2): # Helper function to checkEquality()
 	for row in range(len(matrix1)):
 		for col in range(len(matrix1[0])):
 			if (matrix1[row][col] != matrix2[row][col]):
-				print(row,col)
+				print('indices: ({},{})'.format(row,col))
+				print('Values: m1 - {}, m2 - {}'.format(matrix1[row][col],matrix2[row][col]))
 				return False
 	return True

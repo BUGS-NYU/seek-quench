@@ -221,16 +221,16 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 				corner += match
 			else:
 				corner += mismatch
-			if corner > left and corner > top:
-				new_path.append('corner')
-			elif left > corner and left > top:
-				new_path.append('left')
+			if corner >= left and corner >= top:
+				new_path.append(1)
+			elif left >= corner and left >= top:
+				new_path.append(2)
 			else:
-				new_path.append('top')
+				new_path.append(3)
 			new_end.append(max(corner, left, top))
 		score_mat.append(new_end)
 		path_mat.append(new_path)
-	return score_mat, path_mat
+#	return score_mat, path_mat
 
 
 def export(args, content, row, column, score_mat, end1, end2, method):
@@ -266,4 +266,4 @@ def export(args, content, row, column, score_mat, end1, end2, method):
 	return content, column
 
 
-main()
+#main()
