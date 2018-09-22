@@ -267,13 +267,8 @@ def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
 
 	"""
 	score_mat = []
-	path_mat = []
-	TOP = 1
-	CORNER = 0
-	LEFT = -1
 	seq1 = list(np.round(4*np.random.random(500)-.5)) # Random sequence of 4 possible numbers
 	seq2 = list(np.round(4*np.random.random(320))) # Random sequence of 4 possible numbers
-	start_mat = np.zeros(max(len(seq1),len(seq2)))
 
 	cols = len(seq1)
 	rows = len(seq2)
@@ -281,26 +276,26 @@ def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
 	seq1mesh,seq2mesh  = np.meshgrid(seq1,seq2)
 	matchBools = 1*np.equal(seq1mesh,seq2mesh) # 1 for match and 0 for not a match
 
-	matchValues = matchBools * match - (matchBools -1) * mismatch # Number to add when checking match
+	matchValues = matchBools * match - (matchBools - 1) * mismatch # Number to add when checking match
 
 
-	score_matrix = np.zeros(shape = (rows,cols)); # Score matrix
-	path_matrix = np.zeros(shape = (rows,cols),dtype = np.int8); # path matrix
+	score_matrix = np.zeros(shape = (rows+1,cols+1)); # Score matrix
 
 	score_matrix[0,0] = 0 # Corner element M(0,0) = 0
 
-	start_mat += np.linspace(0,len(start_mat)*gap,len(start_mat)+1)[0:len(start_mat)]# np.linspace so that gap can be positive
-	score_matrix[1:(rows-1),0] = start_mat[0:(rows-2)] # First column values
-	score_matrix[0,1:(cols-1)] = start_mat[0:(cols-2)] # First row values
+	start_matrix = start_mat #+ np.linspace(0,len(start_mat)*gap,len(start_mat)+1)[0:len(start_mat)]
+	score_matrix[1:,0] = start_matrix[0:rows] # First column values
+	score_matrix[0,1:] = start_matrix[0:cols] # First row values
 
-	for row in range(1,rows):
-		for col in range(1,cols):
-			score_matrix[row,col] = max(score_matrix[row-1,col-1]+matchValues[row-1,col-1],score_matrix[row-1,col]+gap)
-			
+	for row in range(1,rows+1):
+		for col in range(1,cols+1):
+			score_matrix[row,col] = max(score_matrix[row-1,col-1]+matchValues[row-1,col-1],
+									   score_matrix[row-1,col]+gap,
+									   score_matrix[row,col-1]+gap)
+	score_matrix = score_matrix[1:,1:]
 	
 	for row in range(len(seq2)):
 		new_end = []
-		new_path = []
 		for col in range(len(seq1)):
 			if col == 0 and row == 0:
 				corner = 0
@@ -323,19 +318,10 @@ def common_align0(seq1, seq2, start_mat, gap, match, mismatch):
 
 			if seq1[col] == seq2[row]:
 				corner += match
-			else:
-				corner += mismatch
-			if corner > left and corner > top:
-				new_path.append(CORNER) # corner
-			elif left > corner and left > top:
-				new_path.append(LEFT) # left
-			else:
-				new_path.append(TOP) # top
 			new_end.append(max(corner, left, top))
 		score_mat.append(new_end)
-		path_mat.append(new_path)
 
-	return score_mat, path_mat
+	return score_mat,score_matrix#, path_mat
 
 
 def getP(left, corner, top):
