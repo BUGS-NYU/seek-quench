@@ -11,3 +11,4 @@
 makefile.py
 src/*
 breakfile.py
+*.c

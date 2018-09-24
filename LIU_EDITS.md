@@ -3,9 +3,8 @@ Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made
 
 ## Checklist
 * [x] bugs
-* [x] .gitignore
-* [x] Reorganizing functions
-* [x] Code Simplicity and Efficiency
+* [ ] numpy
+* [ ] cython
 
 ## Overview
 In general the edits that I made were for method specificity, runtime, and bug fixing.
@@ -16,11 +15,31 @@ I tried to fix any bugs that I found. I don't really know what exactly I should 
 ## Gitignore
 I added a gitignore file so that the repository wouldn't have files related to my workflow but unrelated to the actual script.
 
-## Re-Organization of Functions
-I tried to move the argparse stuff away from everything else to make testing individual functions easier.
+## NumPy
+I used numpy to make operations faster.
+* [ ] Alignment Functions
+	* [ ] global
+	* [ ] semi-global
+	* [ ] local
+	* [ ] common
 
-## Code simplification and Efficiency
-Changed a few things to make code simpler, i.e. used list comprehension instead of for loop. Also improved efficiency by using lists instead of strings in global, semi-global, and local alignment functions.
+# Pandas
+I used pandas to make reading in data simpler and faster.
+* [ ] importing
+* [ ] exporting
+
+## Cython
+I used cython to reduce the python/numpy overhead with accessing arrays.
+* [ ] Variables
+	* [ ] global_align
+	* [ ] semi-global_align
+	* [ ] local_align
+	* [ ] common_align
+* [ ] Arrays
+	* [ ] global_align
+	* [ ] semi-global_align
+	* [ ] local_align
+	* [ ] common_align
 
 ## Sources and Acknowledgements
 Here's what I used to help me learn the bioinformatics and python packages I used

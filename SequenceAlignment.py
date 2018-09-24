@@ -240,7 +240,7 @@ def common_align(seq1, seq2, start_mat, gap, match, mismatch):
 			new_end.append(max(corner, left, top))
 		score_mat.append(new_end)
 		path_mat.append(new_path)
-#	return score_mat, path_mat
+	return score_mat, path_mat
 
 
 def export(content, row, column, score_mat, end1, end2, method,no_write,export_matrix,toprint):
