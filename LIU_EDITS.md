@@ -55,3 +55,4 @@ Here's what I used to help me learn the bioinformatics and python packages I use
   * [Kurt Smith's Cython Tutorial](https://www.youtube.com/watch?v=gMvkiQ-gOW8&t=4730s&ab_channel=Enthought) - Lecture at SciPy 2015
   * [Cython Tutorial Slides](https://github.com/kwmsmith/scipy-2015-cython-tutorial)
 * [BioPython](https://biopython.org/wiki/Documentation) - Biopython is an option that I haven't yet explored
+* [Recursive Vectorization with SciPy](https://stackoverflow.com/questions/21336794/python-recursive-vectorization-with-timeseries/21338665#21338665) - SciPy is an option I haven't yet explored
