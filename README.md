@@ -30,4 +30,3 @@ Projected to finish by the end of 2018.
 	- [ ] Create wireframe of front end
 	- [ ] Implement wireframe with empty sockets for plugging functions into later
 	- [ ] Incorporate algorithms into sockets for back end connection
-
