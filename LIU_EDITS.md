@@ -5,10 +5,10 @@ Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made
 * [x] bugs
 * [x] .gitignore
 * [x] Reorganizing functions
-* [ ] Simplification
+* [x] Code Simplicity and Efficiency
 
 ## Overview
-In general the edits that I made were for method specificity and bug fixing.
+In general the edits that I made were for method specificity, runtime, and bug fixing.
 
 ## Bugs
 I tried to fix any bugs that I found. I don't really know what exactly I should be looking for, but I think I fixed a bug with the generation of the starting matrix, where the matrix would have an incorrect length.
@@ -19,8 +19,8 @@ I added a gitignore file so that the repository wouldn't have files related to m
 ## Re-Organization of Functions
 I tried to move the argparse stuff away from everything else to make testing individual functions easier.
 
-## Code simplification
-Changed a few things to make code simpler.
+## Code simplification and Efficiency
+Changed a few things to make code simpler, i.e. used list comprehension instead of for loop. Also improved efficiency by using lists instead of strings in global, semi-global, and local alignment functions.
 
 ## Sources and Acknowledgements
 Here's what I used to help me learn the bioinformatics and python packages I used
