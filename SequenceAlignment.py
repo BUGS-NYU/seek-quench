@@ -26,15 +26,15 @@ def main():
 		column = 1
 		if args.global_:
 			score_mat, end1, end2 = global_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Global Alignment',
+			content, column = export(content, row, column, score_mat, end1, end2, 'Global Alignment',
 								no_write = args.no_write,export_matrix = args.export_matrix,toprint = args.print)
 		if args.semiglobal:
 			score_mat, end1, end2 = semiglobal_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Semi Global Alignment',
+			content, column = export(content, row, column, score_mat, end1, end2, 'Semi Global Alignment',
 								no_write = args.no_write,export_matrix = args.export_matrix,toprint = args.print)
 		if args.local:
 			score_mat, end1, end2 = local_align(seq1, seq2, gap, match, mismatch)
-			content, column = export(args, content, row, column, score_mat, end1, end2, 'Local Alignment',
+			content, column = export(content, row, column, score_mat, end1, end2, 'Local Alignment',
 								no_write = args.no_write,export_matrix = args.export_matrix,toprint = args.print)
 	file1 = open(args.intake, 'w')
 	writer = csv.writer(file1)
