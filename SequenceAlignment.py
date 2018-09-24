@@ -72,7 +72,6 @@ def global_align(seq1, seq2, gap, match, mismatch):
 	:param mismatch: mismatch score
 	:return: completed score matrix and final sequence alignments
 	"""
-	start_mat = [-1]
 	global TOP,LEFT
 	length = max(len(seq1),len(seq2))
 	start_mat = [x for x in range(-1,-length-1,-1)]
