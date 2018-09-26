@@ -12,3 +12,5 @@ makefile.py
 src/*
 breakfile.py
 *.c
+build/
+*.so
