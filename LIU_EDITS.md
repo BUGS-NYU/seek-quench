@@ -2,18 +2,13 @@
 Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made.
 
 ## Checklist
-* [x] bugs
 * [ ] numpy
 * [ ] cython
+* [ ] pandas
+* [ ] README TODO's
 
 ## Overview
 In general the edits that I made were for method specificity, runtime, and bug fixing.
-
-## Bugs
-I tried to fix any bugs that I found. I don't really know what exactly I should be looking for, but I think I fixed a bug with the generation of the starting matrix, where the matrix would have an incorrect length.
-
-## Gitignore
-I added a gitignore file so that the repository wouldn't have files related to my workflow but unrelated to the actual script.
 
 ## NumPy
 I used numpy to make operations faster.

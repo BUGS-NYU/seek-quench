@@ -1,1 +1,1 @@
-from seekqueens import main0
+from src import main0
