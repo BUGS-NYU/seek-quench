@@ -16,7 +16,6 @@ def check_equality(matrix1, matrix2, encoding = None):
 	not be converted
 	'''
 
-	#TODO Do this function to test the changes made
 	if encoding is None:
 		return __check_naive(matrix1,matrix2)
 	for row in range(len(matrix1)):
