@@ -37,20 +37,22 @@ def __check_naive(matrix1,matrix2): # Helper function to checkEquality()
 	return True
 
 VALUES = {0:'A',1:'G',2:'C',3:'T'}
-
-def generate_seq(length,values = None):
-	if values is None:
-		values = VALUES
+BASES = ['A','G','T','C']
+def generate_seq(length):
+	global VALUES
 	seq = []
 	intseq = np.around(np.rand(length) * 4)
 	for i in range(length):
-		seq.append(values[intseq])
+		seq.append(VALUES[intseq])
 	return ''.join(seq)
 
 def mutate_seq(seq,mutation_rate = .01): # Given a sequence string, mutate it randomly according to a ratio
-	mutation_count = len(seq) * mutation_rate
-	intseq = np.around(np.rand(length) * 4)
+	# Use boolean mask to determine random mutation locations
+	intseq = np.rand(len(seq)) < mutation_rate
 	newseq = []
-
-	for basepair in seq:
-		pass
+	global BASES
+	for index in range(len(seq)):
+		if intseq[index]:
+			newseq.append(np.choice(BASES))
+		else:
+			newseq.append(seq[index])
