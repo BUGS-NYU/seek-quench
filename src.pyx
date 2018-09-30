@@ -74,8 +74,8 @@ def global_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int m
 	align1 = np.zeros(length, dtype = DTYPE);
 	align2 = np.zeros(length, dtype = DTYPE);
 	
-	int [:] align1_view = align1
-	int [:] align2_view = align2
+	cdef int [:] align1_view = align1
+	cdef int [:] align2_view = align2
 	
 	cdef Py_ssize_t index = length - 1
 	col = len1 - 1
@@ -83,12 +83,12 @@ def global_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int m
 	
 	while row >= 0 and col >= 0:
 		if path_mat_view[row][col] == TOP:
-			align1_vew[index] = NONE
+			align1_view[index] = NONE
 			align2_view[index] = seq2[row]
 			row -= 1
 			index-=1
 		elif path_mat_view[row][col] == LEFT:
-			align1_view[index] = seq[col]
+			align1_view[index] = seq1[col]
 			align2_view[index] = NONE
 			col -= 1
 			index-=1
@@ -168,7 +168,7 @@ def decode(int [:] seqarray): # Convert numpy array back into seq string
 #%%common.pyx
 
 
-def common_align0(int [:] seq1,int len1,int [:] seq2, int len2, int [:] start_matrix, int gap, int match, int mismatch):
+def common_align0(int [:] seq1,int len1, int [:] seq2, int len2, int [:] start_matrix, int gap, int match, int mismatch):
 	"""
 	Calculates score matrix based on starting top row and left column scores created by unique alignment method.
 	:param seq1: top row sequence
