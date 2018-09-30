@@ -81,7 +81,7 @@ def global_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int m
 	col = len1 - 1
 	row = len2 - 1
 	
-	while row >= 0 and col >= 0:
+	while index >= 0:
 		if path_mat_view[row][col] == TOP:
 			align1_view[index] = NONE
 			align2_view[index] = seq2[row]
@@ -250,3 +250,83 @@ def getP(int corner,int left, int top):
 		return LEFT,left # left
 	else:
 		return TOP,top # top
+
+
+#%%local_align.pyx
+
+def local_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int match, int mismatch):
+	"""
+	Compute local sequence alignment on pair.
+
+	:param seq1: top row sequence
+	:param seq2: left column sequence
+	:param gap: gap penalty
+	:param match: match score
+	:param mismatch: mismatch score
+	:return: completed score matrix and final sequence alignments
+	"""
+	cdef int length = max(len1,len2)
+	start_mat = np.zeros(length)
+	score_mat, path_mat = common_align0(seq1,len1,seq2,len2,start_mat,gap,match,mismatch)
+	cdef int [:,:] score_mat_view = score_mat
+	cdef int [:,:] path_mat_view = path_mat
+	
+	
+	end1 = []
+	end2 = []
+	cdef Py_ssize_t row = 0
+	cdef Py_ssize_t col = 0
+	cdef int temp_score = score_mat[0,0]
+	global TOP,LEFT
+	
+	# Find the end of the best local alignment
+	cdef int i,j
+	for i in range(len2):
+		for j in range(len1):
+			if score_mat_view[i][j] > temp_score:
+				temp_score = score_mat_view[i][j]
+				row = i
+				col = j
+	
+	
+	length = 0
+	while row >= 0 and col >= 0 and temp_score > 0:
+		temp_score = score_mat_view[row][col]
+		if path_mat_view[row][col] == TOP:
+			length+=1
+			row -= 1
+		elif path_mat_view[row][col] == LEFT:
+			length+=1
+			col -= 1
+		else:
+			length+=1
+			row -= 1
+			col -= 1
+	
+	row = i
+	col = j
+	cdef Py_ssize_t index = length - 1
+	align1 = np.zeros(length, dtype = DTYPE);
+	align2 = np.zeros(length, dtype = DTYPE);
+	cdef int [:] align1_view = align1
+	cdef int [:] align2_view = align2
+	
+	while index >= 0:
+		if path_mat_view[row][col] == TOP:
+			align1_view[index] = NONE
+			align2_view[index] = seq2[row]
+			row -= 1
+			index-=1
+		elif path_mat_view[row][col] == LEFT:
+			align1_view[index] = seq1[col]
+			align2_view[index] = NONE
+			col -= 1
+			index-=1
+		else:
+			align1_view[index] = seq1[col]
+			align2_view[index] = seq2[row]
+			row -= 1
+			col -= 1
+			index-=1
+	
+	return score_mat, align1, align2
