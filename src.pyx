@@ -102,6 +102,86 @@ def global_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int m
 	return score_mat, align1, align2
 
 
+#%%semi_align.pyx
+
+def semiglobal_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int match, int mismatch):
+	"""
+	Compute semi-global sequence alignment on pair.
+
+	:param seq1: top row sequence
+	:param seq2: left column sequence
+	:param gap: gap penalty
+	:param match: match score
+	:param mismatch: mismatch score
+	:return: completed score matrix and final sequence alignments
+	"""
+	cdef int length = max(len1,len2)
+	start_mat = np.zeros(length)
+	score_mat, path_mat = common_align0(seq1, seq2, start_mat, gap, match, mismatch)
+	cdef int [:,:] score_mat_view = score_mat
+	cdef int [:,:] path_mat_view = path_mat
+	
+	cdef Py_ssize_t row = 0
+	cdef Py_ssize_t col = len1 - 1
+	cdef int temp_score = score_mat_view[0][col]
+	global TOP,LEFT, DTYPE, NONE
+	
+	cdef Py_ssize_t i
+	for i in range(len2):
+		if score_mat_view[i][col] > temp_score:
+			row = i
+			temp_score = score_mat_view[i][col]
+	
+	
+	for i in range(len1):
+		if score_mat[len2-1][i] > temp_score:
+			row = len2 - 1
+			col = i
+			temp_score = score_mat[len2-1][i]
+	
+	length = 0
+	cdef Py_ssize_t r = row
+	cdef Py_ssize_t c = col
+	while r >= 0 and c >= 0:
+		if path_mat_view[r][c] == TOP:
+			length+=1
+			r -= 1
+		elif path_mat_view[r][c] == LEFT:
+			length+=1
+			c -= 1
+		else:
+			length+=1
+			r -= 1
+			c -= 1
+	
+	align1 = np.zeros(length, dtype = DTYPE)
+	align2 = np.zeros(length, dtype = DTYPE)
+	cdef int [:] align1_view = align1
+	cdef int [:] align2_view = align2
+	
+	cdef Py_ssize_t index = length - 1
+	
+	while index >= 0:
+		if path_mat_view[row][col] == TOP:
+			align1_view[index] = NONE
+			align2_view[index] = seq2[row]
+			row -= 1
+			index-=1
+		elif path_mat_view[row][col] == LEFT:
+			align1_view[index] = seq1[col]
+			align2_view[index] = NONE
+			col -= 1
+			index-=1
+		else:
+			align1_view[index] = seq1[col]
+			align2_view[index] = seq2[row]
+			row -= 1
+			col -= 1
+			index-=1
+	
+	return score_mat, align1, align2
+
+
 #%%export.pyx
 def export0(content,Py_ssize_t row,Py_ssize_t column,
 			int [:,:] score_mat, end1, end2,char *method,int nowrite,char * export_matrix,int toprint):
@@ -276,8 +356,8 @@ def local_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int ma
 	end2 = []
 	cdef Py_ssize_t row = 0
 	cdef Py_ssize_t col = 0
-	cdef int temp_score = score_mat[0,0]
-	global TOP,LEFT
+	cdef int temp_score = score_mat_view[0,0]
+	global TOP,LEFT, DTYPE, NONE
 	
 	# Find the end of the best local alignment
 	cdef int i,j
