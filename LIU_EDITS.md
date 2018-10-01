@@ -2,9 +2,9 @@
 Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made.
 
 ## Checklist
-* [ ] Reworking Functions
-* [ ] numpy
-* [ ] cython
+* [x] Reworking Functions
+* [x] numpy
+* [x] cython
 * [ ] pandas
 * [ ] Bugs and Testing Framework
 * [ ] README TODO's
@@ -17,10 +17,10 @@ I'm going to try to make common_align faster and easier to read. I'm also going 
 
 ## NumPy
 I used numpy to make operations faster.
-* [ ] Alignment Functions
+* [x] Alignment Functions
 	* [x] global
-	* [ ] semi-global
-	* [ ] local
+	* [x] semi-global
+	* [x] local
 	* [x] common
 
 # Pandas
@@ -30,17 +30,20 @@ I used pandas to make reading in data simpler and faster.
 
 ## Cython
 I used cython to reduce the python/numpy overhead with accessing arrays.
-* [ ] Variables
+* [x] Variables
 	* [x] global_align
-	* [ ] semi-global_align
-	* [ ] local_align
+	* [x] semi-global_align
+	* [x] local_align
 	* [x] common_align
-* [ ] Arrays
+* [x] Arrays
 	* [x] global_align
-	* [ ] semi-global_align
-	* [ ] local_align
+	* [x] semi-global_align
+	* [x] local_align
 	* [x] common_align
-	
+
+## Double Checking
+Checklist for double checking
+
 ## Bugs
 Going to do more bug-checking and testing. Also going to build a framework of functions to test the outputs of stuff that I write.
 
