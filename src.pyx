@@ -33,6 +33,21 @@ DTYPE = np.intc
 encoding = Bidict() # This dictionary holds the encoding from the data in seq to the data in the numpy array
 encoding[-1] = '-'
 
+cdef char * DNA_BASES = 'AGCTU-'
+cdef char DNA_A_CHAR = DNA_BASES[0]
+cdef char DNA_G_CHAR = DNA_BASES[1]
+cdef char DNA_C_CHAR = DNA_BASES[2]
+cdef char DNA_T_CHAR = DNA_BASES[3]
+cdef char DNA_U_CHAR = DNA_BASES[4]
+cdef char DNA_NULL_CHAR = DNA_BASES[5]
+
+cdef int DNA_A_CODE = 0
+cdef int DNA_G_CODE = 1
+cdef int DNA_C_CODE = 2
+cdef int DNA_T_CODE = 3
+cdef int DNA_U_CODE = 4
+cdef int DNA_NULL_CODE = -1
+
 #%%global_align.pyx
 
 def global_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, int match, int mismatch):
@@ -183,8 +198,8 @@ def semiglobal_align0(int [:] seq1, int len1, int [:] seq2, int len2, int gap, i
 
 
 #%%export.pyx
-def export0(content,Py_ssize_t row,Py_ssize_t column,
-			int [:,:] score_mat, end1, end2,char *method,int nowrite,char * export_matrix,int toprint):
+def export0(content,Py_ssize_t row, Py_ssize_t column,
+		int [:,:] score_mat, int [:] end1, int [:] end2,char *method,int nowrite,char * export_matrix, int toprint):
 	"""
 	Perform export functions depending on command line arguments.
 
@@ -220,9 +235,11 @@ def export0(content,Py_ssize_t row,Py_ssize_t column,
 #%%seqarray.pyx
 
 def encode(seq): # This converts a sequence into a numpy array
-	cdef int code = 1, length = len(seq), index
+	cdef int code = 1, length = len(seq),
+	cdef Py_ssize_t index
 	 # I'm almost certain that seq is just a string containing AGTC but im not confident
-	cdef int [:] new_seq = np.zeros(length) # in that so I'm using a dictionary to encode the sequences first just in case
+	new_seq = np.zeros(length) # in that so I'm using a dictionary to encode the sequences first just in case
+	cdef int [:] new_seq_view = new_seq
 	global encoding
 	cdef char *cseq = seq
 	cdef char element
@@ -232,17 +249,68 @@ def encode(seq): # This converts a sequence into a numpy array
 		if element not in encoding:
 			encoding[element] = code
 			code+=1
-		new_seq[index] = encoding[element]
+		new_seq_view[index] = encoding[element]
 	return new_seq
 
 def decode(int [:] seqarray): # Convert numpy array back into seq string
 	global encoding
 	decoding = encoding.inverse
 	cdef int length = len(seqarray),index
-	cdef char [:] seq = np.zeros(length)
+	seq = np.zeros(length)
+	cdef char * seq_ref = seq
+	cdef char [:] seq_view = seq
 	for index in range(length):
-		seq[index] = decoding[seqarray[index]]
-	return ''.join(seq)
+		seq_view[index] = decoding[seqarray[index]]
+	return seq_ref
+
+def encodeDNA(seq):
+	cdef int length = len(seq)
+	cdef Py_ssize_t index
+	global DNA_A_CHAR,DNA_G_CHAR,DNA_C_CHAR,DNA_T_CHAR,DNA_U_CHAR
+	global DNA_A_CODE,DNA_G_CODE,DNA_C_CODE,DNA_T_CODE,DNA_U_CODE,DNA_NULL_CODE
+	new_seq = np.zeros(length)
+	cdef int [:] new_seq_view = new_seq
+	seq = seq.upper()
+	cdef char *cseq = seq
+	cdef char element
+	for index in range(length):
+		element = cseq[index]
+		if 	element == DNA_A_CHAR:
+			new_seq_view[index] = DNA_A_CODE
+		elif element == DNA_G_CHAR:
+			new_seq_view[index] = DNA_G_CODE
+		elif element == DNA_C_CHAR:
+			new_seq_view[index] = DNA_C_CODE
+		elif element == DNA_T_CHAR:
+			new_seq_view[index] = DNA_T_CODE
+		elif element == DNA_U_CHAR:
+			new_seq_view[index] = DNA_U_CODE
+		else:
+			new_seq_view[index] = DNA_NULL_CODE
+	return new_seq
+
+def decodeDNA(int [:] seqarray):
+	cdef Py_ssize_t index
+	seq = np.zeros(len(seqarray))
+	cdef char * seq_ref = seq
+	cdef char [:] seq_view = seq
+	cdef char element
+	for index in range(len(seqarray)):
+		element = seqarray[index]
+		if 	element == DNA_A_CODE:
+			seq_view[index] = DNA_A_CHAR
+		elif element == DNA_G_CODE:
+			seq_view[index] = DNA_G_CHAR
+		elif element == DNA_C_CODE:
+			seq_view[index] = DNA_C_CHAR
+		elif element == DNA_T_CODE:
+			seq_view[index] = DNA_T_CHAR
+		elif element == DNA_U_CODE:
+			seq_view[index] = DNA_U_CHAR
+		else:
+			seq_view[index] = DNA_NULL_CHAR
+	return seq_ref
+
 
 
 #%%common.pyx
