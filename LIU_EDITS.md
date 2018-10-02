@@ -41,6 +41,15 @@ I used cython to reduce the python/numpy overhead with accessing arrays.
 	* [x] local_align
 	* [x] common_align
 
+## README TODO's
+- [ ] have to figure out how to allow gaps at the front of the sequence
+- [ ] compute an overall alignment score (probably simply the highest number from score matrix)
+- [ ] decide how to best implement for later Django
+	- [ ] e.g. objects or command line file calling with functions (currently latter)
+	- [ ] take in file of many sequences formatted correctly and uploaded to front end or take in two sequences via command line from long response front end form box (currently former)
+		- we may also want both to give users options for large and slow or small and quick alignments
+	- [ ] these can be easily changed later but will take some time to ensure error-free algorithms are preserved
+
 ## Double Checking
 Checklist for double checking
 
