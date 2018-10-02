@@ -1,5 +1,6 @@
-from src import main0
+from src import global_align0, export0, semiglobal_align0, local_align0
 import argparse
+import pandas as pd
 
 import csv
 
@@ -8,17 +9,17 @@ def main0():
 	Intake command line parameters, import file, pairwise sequence alignment first column of each pair of rows, and export calculations.
 	"""
 	args = command_line_parameters0() #Command call inputs
-	cdef int gap = int(args.gap)
-	cdef int match = int(args.match)
-	cdef int mismatch = int(args.mismatch)
+	gap = int(args.gap)
+	match = int(args.match)
+	mismatch = int(args.mismatch)
+	seqdf = pd.read_csv(args.intake,header=None)
 
-	file1 = open(args.intake, 'r') #
-	content = list(csv.reader(file1))
-	file1.close()
+	# Eventually be able to label sequence pairs
+	# Change export0 to not take in and return the object array every time
+	
 	# for every row of imported file,
 	# 	pairwise sequence align first two columns
 	# 	and export to next three columns
-	cdef Py_ssize_t row,column
 	for row in range(0, len(content), 2):
 		seq1 = content[row][0]
 		seq2 = content[row + 1][0]
