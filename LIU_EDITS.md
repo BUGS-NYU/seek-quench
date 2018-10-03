@@ -2,25 +2,59 @@
 Hi! I'm Albert Liu. Here's a summary of the edits I'm planning to make/have made.
 
 ## Checklist
-* [x] bugs
-* [x] .gitignore
-* [x] Reorganizing functions
-* [x] Code Simplicity and Efficiency
+* [x] Reworking Functions
+* [x] numpy
+* [x] cython
+* [ ] pandas
+* [ ] Bugs and Testing Framework
+* [ ] README TODO's
 
 ## Overview
 In general the edits that I made were for method specificity, runtime, and bug fixing.
 
+## Reworking functions
+I'm going to try to make common_align faster and easier to read. I'm also going to do a similar thing to the other align functions. One of the ways I'm going to do this is by changing all the alignment functions to work with integer arrays instead of strings. This way the implementation will be a little disconnected from the information -- might make it easier to do things like align mRNA. I'm also going to create a few encoder-decoders and a set of functions to encode sequences into integers.
+
+## NumPy
+I used numpy to make operations faster.
+* [x] Alignment Functions
+	* [x] global
+	* [x] semi-global
+	* [x] local
+	* [x] common
+
+# Pandas
+I used pandas to make reading in data simpler and faster.
+* [ ] importing
+* [ ] exporting
+
+## Cython
+I used cython to reduce the python/numpy overhead with accessing arrays.
+* [x] Variables
+	* [x] global_align
+	* [x] semi-global_align
+	* [x] local_align
+	* [x] common_align
+* [x] Arrays
+	* [x] global_align
+	* [x] semi-global_align
+	* [x] local_align
+	* [x] common_align
+
+## README TODO's
+- [ ] have to figure out how to allow gaps at the front of the sequence
+- [ ] compute an overall alignment score (probably simply the highest number from score matrix)
+- [ ] decide how to best implement for later Django
+	- [ ] e.g. objects or command line file calling with functions (currently latter)
+	- [ ] take in file of many sequences formatted correctly and uploaded to front end or take in two sequences via command line from long response front end form box (currently former)
+		- we may also want both to give users options for large and slow or small and quick alignments
+	- [ ] these can be easily changed later but will take some time to ensure error-free algorithms are preserved
+
+## Double Checking
+Checklist for double checking
+
 ## Bugs
-I tried to fix any bugs that I found. I don't really know what exactly I should be looking for, but I think I fixed a bug with the generation of the starting matrix, where the matrix would have an incorrect length.
-
-## Gitignore
-I added a gitignore file so that the repository wouldn't have files related to my workflow but unrelated to the actual script.
-
-## Re-Organization of Functions
-I tried to move the argparse stuff away from everything else to make testing individual functions easier.
-
-## Code simplification and Efficiency
-Changed a few things to make code simpler, i.e. used list comprehension instead of for loop. Also improved efficiency by using lists instead of strings in global, semi-global, and local alignment functions.
+Going to do more bug-checking and testing. Also going to build a framework of functions to test the outputs of stuff that I write.
 
 ## Sources and Acknowledgements
 Here's what I used to help me learn the bioinformatics and python packages I used
@@ -36,3 +70,4 @@ Here's what I used to help me learn the bioinformatics and python packages I use
   * [Kurt Smith's Cython Tutorial](https://www.youtube.com/watch?v=gMvkiQ-gOW8&t=4730s&ab_channel=Enthought) - Lecture at SciPy 2015
   * [Cython Tutorial Slides](https://github.com/kwmsmith/scipy-2015-cython-tutorial)
 * [BioPython](https://biopython.org/wiki/Documentation) - Biopython is an option that I haven't yet explored
+* [Recursive Vectorization with SciPy](https://stackoverflow.com/questions/21336794/python-recursive-vectorization-with-timeseries/21338665#21338665) - SciPy is an option I haven't yet explored

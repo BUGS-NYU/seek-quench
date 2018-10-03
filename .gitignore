@@ -11,3 +11,7 @@
 makefile.py
 src/*
 breakfile.py
+build/
+*.c
+*.so
+tests/seqalign.py
