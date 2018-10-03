@@ -15,3 +15,5 @@ build/
 *.c
 *.so
 tests/seqalign.py
+tests/setup.py
+tests/src.pyx
