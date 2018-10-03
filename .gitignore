@@ -14,3 +14,4 @@ breakfile.py
 build/
 *.c
 *.so
+tests/seqalign.py
