@@ -54,7 +54,6 @@ def mutate_seq(seq,mutation_rate = .01): # Given a sequence string, mutate it ra
 	# Use boolean mask to determine random mutation locations
 	intseq = np.random.rand(len(seq)) < mutation_rate
 	newseq = []
-	print(list(intseq))
 	global BASES
 	for index in range(len(seq)):
 		if intseq[index]:
