@@ -1,0 +1,19 @@
+
+# complied files
+*.pyc
+
+# Mac indexing file
+.DS_Store
+
+# stuff used to make the final file
+# I split up all the functions into their own files and stored them in src/
+# and recombined them into seekQueens.py using makefile.py
+makefile.py
+src/*
+breakfile.py
+build/
+*.c
+*.so
+tests/seqalign.py
+tests/setup.py
+tests/src.pyx
