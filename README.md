@@ -44,9 +44,7 @@ Direct questions, comments, and concerns to [David](https://github.com/KEYS248).
 	- [ ] recommendations on changes or other improvements are welcome
 2. Django Implementation
 	- [ ] I need to take the Django lynda course
-	- [ ] Create wireframe of front end
+	- [x] Create wireframe of front end
 	- [ ] Implement wireframe with empty sockets for plugging functions into later
 	- [ ] Incorporate algorithms into sockets for back end connection
 	
-## Latest
-- David: I will update in a week with some front end wireframes and more solid ideas on what features the web app should have.
